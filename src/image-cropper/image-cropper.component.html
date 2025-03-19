@@ -1,0 +1,10 @@
+<div #dropArea class="drop-zone">
+    <p>Drag & Drop an image here or click to select</p>
+    <input type="file" (change)="loadImage($event.target.files[0])" accept="image/*" hidden />
+  </div>
+  
+  <div *ngIf="imageUrl">
+    <img #image [src]="imageUrl" alt="To be cropped" />
+    <button (click)="cropImage()">Crop Image</button>
+  </div>
+  
