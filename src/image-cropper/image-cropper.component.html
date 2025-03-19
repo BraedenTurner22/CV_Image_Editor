@@ -1,10 +1,9 @@
-<div #dropArea class="drop-zone">
-    <p>Drag & Drop an image here or click to select</p>
-    <input type="file" (change)="loadImage($event.target.files[0])" accept="image/*" hidden />
-  </div>
-  
-  <div *ngIf="imageUrl">
-    <img #image [src]="imageUrl" alt="To be cropped" />
-    <button (click)="cropImage()">Crop Image</button>
-  </div>
-  
+<input type="file" (change)="fileChangeEvent($event)" accept="image/*" />
+<image-cropper
+  [imageChangedEvent]="imageChangedEvent"
+  [maintainAspectRatio]="false"
+  [aspectRatio]="1"
+  format="png"
+  (imageCropped)="imageCropped($event)">
+</image-cropper>
+<img [src]="croppedImage" *ngIf="croppedImage" alt="Cropped Image" />
