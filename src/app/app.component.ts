@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { ImageCropperComponentStandalone } from "../image-cropper/image-cropper.component";
+import { ImageCropperComponent} from "../image-cropper/image-cropper.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ImageCropperComponentStandalone],
+  imports: [ImageCropperComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

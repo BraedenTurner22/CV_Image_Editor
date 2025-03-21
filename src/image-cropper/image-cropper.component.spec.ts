@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ImageCropperComponent } from './image-cropper.component';
 
 describe('ImageCropperComponent', () => {
