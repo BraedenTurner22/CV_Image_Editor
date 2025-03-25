@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component, untracked} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 export class ImageCropperComponent {
   img!: HTMLImageElement;
   imageUrl: string = '';
+  imageName: string = '';
   croppedImage: any = '';
 
     imageNaturalWidth: number = 0;
@@ -26,6 +27,7 @@ export class ImageCropperComponent {
   fileChangeEvent(event: any): void {
     const file = event.target.files[0];
     if (file) {
+      this.imageName = file.name;
       const reader = new FileReader();
       reader.onload = () => (this.imageUrl = reader.result as string);
       reader.readAsDataURL(file);
@@ -102,14 +104,16 @@ export class ImageCropperComponent {
     const url = window.URL.createObjectURL(blob);
 
     const link = document.createElement(`a`);
-
     link.href = url;
-    link.download = `${this.img.id}.txt`;
 
+  // Replace the file extension with .txt or append .txt if none exists
+  const txtFileName = this.imageName.includes('.') 
+    ? this.imageName.replace(/\.[^/.]+$/, '.txt')
+    : this.imageName + '.txt';
+
+    link.download = txtFileName;
     document.body.appendChild(link);
-
     link.click();
-
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
