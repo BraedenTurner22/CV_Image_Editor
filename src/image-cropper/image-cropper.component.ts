@@ -1,5 +1,6 @@
-import { Component, untracked} from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ImageLabelGenerator } from "../image-label-generator.service"
 
 @Component({
   selector: 'app-image-cropper',
@@ -22,6 +23,8 @@ export class ImageCropperComponent {
   cropRect = { left: 0, top: 0, width: 0, height: 0 };
   startX = 0;
   startY = 0;
+
+  constructor(private ImageLabelGenerator: ImageLabelGenerator) {}
 
   // Loads the image and sets the imageUrl property
   fileChangeEvent(event: any): void {
@@ -99,23 +102,6 @@ export class ImageCropperComponent {
     const label = `0 ${centerX.toFixed(6)} ${centerY.toFixed(6)} ${croppedImageRelativeWidth.toFixed(6)} ${croppedImageRelativeHeight.toFixed(6)}`;
     console.log(`YOLO coords ${label}`)
 
-    const blob = new Blob([label], { type: 'text/plain;charset=utf-8'});
-
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement(`a`);
-    link.href = url;
-
-  // Replace the file extension with .txt or append .txt if none exists
-  const txtFileName = this.imageName.includes('.') 
-    ? this.imageName.replace(/\.[^/.]+$/, '.txt')
-    : this.imageName + '.txt';
-
-    link.download = txtFileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-
+    this.ImageLabelGenerator.updateFileData(label, this.imageName)
   }
 }

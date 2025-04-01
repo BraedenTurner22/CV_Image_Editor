@@ -1,0 +1,23 @@
+<div>
+    <button *ngIf="!objectFormIsOpen" (click)="initiateObjectForm()">Create New Project</button>
+</div>
+
+<div *ngIf="objectFormIsOpen">
+    <h2>Create New Project:</h2>
+</div>
+
+<div>
+    <input type="text" [(ngModel)]="newObjectClass" placeholder="Enter class name">
+    <button (click)="addObject()">+</button>
+</div>
+
+<div>
+    <button (click)="finishForm()">Finish</button>
+</div>
+
+<!-- List of added objects with a remove button -->
+<div *ngFor="let key of getKeys(objectDict)">
+    <input type="text" [(ngModel)]="objectDict[key]" placeholder="Object class">
+    <button (click)="removeObject(key)">-</button>
+</div>
+

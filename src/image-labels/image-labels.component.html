@@ -1,1 +1,17 @@
-<p>image-labels works!</p>
+<div class="image-labels">
+    <h2>Image Labels</h2>
+    <div *ngIf="fileContent && fileName; else noData">
+      <p>
+        <strong>File Name:</strong> {{ fileName }}
+      </p>
+      <p>
+        <strong>File Content:</strong>
+      </p>
+      <pre>{{ fileContent }}</pre>
+      <button (click)="downloadFile()">Download File</button>
+    </div>
+    <ng-template #noData>
+      <p>No file data available yet. Please generate the image labels first!</p>
+    </ng-template>
+  </div>
+  
