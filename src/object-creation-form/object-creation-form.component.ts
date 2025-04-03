@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { FormIsFinishedService } from "../form-finished.service";
-import { throwError } from "rxjs";
+import { FormIsFinishedService } from "../app/services/form-finished.service";
+import { FormToCropperLabelsService } from "../app/services/form-to-cropper-labels.service";
 
 @Component({
   selector: "app-object-creation-form",
@@ -22,9 +22,16 @@ export class ObjectCreationFormComponent implements OnInit {
 
   nextKey: number = 0;
 
-  constructor(private FormIsFinishedService: FormIsFinishedService) {}
+  constructor(
+    private FormIsFinishedService: FormIsFinishedService,
+    private FormToCropperLabelsServce: FormToCropperLabelsService
+  ) {}
 
   ngOnInit(): void {}
+
+  get dictSize(): number {
+    return Object.keys(this.objectDict).length;
+  }
 
   initiateObjectForm() {
     this.newProjectCreated = true;
@@ -40,6 +47,7 @@ export class ObjectCreationFormComponent implements OnInit {
         this.objectDict[this.nextKey] = this.newObjectClass;
         this.nextKey++;
         this.newObjectClass = "";
+        this.errorMessage = "";
       } else {
         this.errorMessage =
           "Class name already exists, please pick a different name";
@@ -59,8 +67,13 @@ export class ObjectCreationFormComponent implements OnInit {
   }
 
   finishForm() {
-    this.formIsFinished = true;
-    this.FormIsFinishedService.updateFormStatus(this.formIsFinished);
-    this.objectFormIsOpen = false;
+    if (this.dictSize > 0) {
+      this.formIsFinished = true;
+      this.FormIsFinishedService.updateFormStatus(this.formIsFinished);
+      this.objectFormIsOpen = false;
+      this.FormToCropperLabelsServce.updateCropperLabels(this.objectDict);
+    } else {
+      this.errorMessage = "You cannot generate a project with 0 labels.";
+    }
   }
 }

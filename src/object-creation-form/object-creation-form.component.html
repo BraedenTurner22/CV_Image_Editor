@@ -7,7 +7,7 @@
 <div *ngIf="objectFormIsOpen">
   <h2>Create New Project:</h2>
 
-  <div>
+  <div *ngIf="dictSize < 10">
     <input
       type="text"
       [(ngModel)]="newObjectClass"

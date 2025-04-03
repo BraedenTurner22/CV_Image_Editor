@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { ImageCropperComponent } from "../image-cropper/image-cropper.component";
 import { ImageLabelsComponent } from "../image-labels/image-labels.component";
 import { ObjectCreationFormComponent } from "../object-creation-form/object-creation-form.component";
-import { FormIsFinishedService } from "../form-finished.service";
+import { FormIsFinishedService } from "./services/form-finished.service";
 import { CommonModule } from "@angular/common";
 
 @Component({
