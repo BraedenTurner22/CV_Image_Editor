@@ -1,30 +1,27 @@
-import { Component } from "@angular/core";
-import { ImageCropperComponent } from "../image-cropper/image-cropper.component";
-import { ImageLabelsComponent } from "../image-labels/image-labels.component";
-import { ObjectCreationFormComponent } from "../object-creation-form/object-creation-form.component";
-import { FormIsFinishedService } from "./services/form-finished.service";
+import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { RouterOutlet } from "@angular/router";
+import { HeaderComponent } from "./header/header.component";
+import { AuthService } from "./authentication/services/auth.service";
+import { FormIsFinishedService } from "./image-editor/services/form-finished.service";
 
 @Component({
   selector: "app-root",
-  standalone: true,
   imports: [
-    ImageCropperComponent,
-    ImageLabelsComponent,
-    ObjectCreationFormComponent,
     CommonModule,
+    RouterOutlet,
+    HeaderComponent,
   ],
   templateUrl: "./app.component.html",
   styleUrl: "./app.component.css",
 })
 export class AppComponent {
+
+
+  // TODO: move to image cropping component LATER
   objectCreationFormFinished: boolean | null = false;
+  private formIsFinishedService = inject(FormIsFinishedService); 
 
-  constructor(private FormIsFinishedService: FormIsFinishedService) {}
+  constructor(private readonly supabaseAuthService: AuthService) {}
 
-  ngOnInit(): void {
-    this.FormIsFinishedService.formOpen$.subscribe((data) => {
-      this.objectCreationFormFinished = data;
-    });
   }
-}

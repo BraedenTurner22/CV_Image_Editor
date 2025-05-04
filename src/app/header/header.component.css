@@ -1,0 +1,63 @@
+.app-header {
+  display: flex;
+  height: 60px;
+  background: #171717;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0rem;
+}
+
+.header-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.nav-link-login {
+  margin-left: 12px;
+  padding: 8px 16px;
+  border: none;
+  color: #389fe3;
+  text-decoration: underline;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-link-login:hover {
+  color: #2073ab;
+}
+
+.nav-link-signup {
+  margin-left: 12px;
+  padding: 8px 16px;
+  border: none;
+  background: #5dade2;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-link-signup:hover {
+  background: #3498db;
+}

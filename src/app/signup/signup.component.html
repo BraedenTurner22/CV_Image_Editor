@@ -1,0 +1,93 @@
+<div class="main-container">
+  <h2 class="title">Create an account</h2>
+  <hr class="line" />
+
+  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+    <!-- Email -->
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        placeholder="Enter your email"
+        formControlName="email"
+        [disabled]="loading"
+      />
+      <div
+        *ngIf="
+          signupForm.controls['email'].invalid &&
+          (signupForm.controls['email'].dirty ||
+            signupForm.controls['email'].touched)
+        "
+        class="error-message"
+      >
+        Email is required and must be valid.
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        name="password"
+        placeholder="Enter your password"
+        formControlName="password"
+        [disabled]="loading"
+      />
+      <div
+        *ngIf="
+          signupForm.controls['password'].invalid &&
+          (signupForm.controls['password'].dirty ||
+            signupForm.controls['password'].touched)
+        "
+        class="error-message"
+      >
+        Password must be at least 8 characters.
+      </div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="input-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input
+        id="confirmPassword"
+        type="password"
+        name="confirmPassword"
+        placeholder="Confirm your password"
+        formControlName="confirmPassword"
+        [disabled]="loading"
+      />
+      <div
+        *ngIf="
+          signupForm.hasError('passwordsMismatch') &&
+          (signupForm.controls['confirmPassword'].dirty ||
+            signupForm.controls['confirmPassword'].touched)
+        "
+        class="error-message"
+      >
+        Passwords do not match.
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button
+      class="button"
+      type="submit"
+      [disabled]="signupForm.invalid || loading"
+    >
+      <span *ngIf="!loading">Sign Up</span>
+      <span *ngIf="loading">Loading...</span>
+    </button>
+
+    <!-- Error -->
+    <div *ngIf="authError" class="error-message">{{ authError }}</div>
+  </form>
+
+  <p class="toggle-link">
+    Already have an account?
+    <a routerLink="/login">Sign In</a>
+  </p>
+</div>

@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { FormIsFinishedService } from "../app/services/form-finished.service";
-import { FormToCropperLabelsService } from "../app/services/form-to-cropper-labels.service";
+import { FormIsFinishedService } from "../app/image-editor/services/form-finished.service";
+import { FormToCropperLabelsService } from "../app/image-editor/services/form-to-cropper-labels.service";
 
 @Component({
   selector: "app-object-creation-form",

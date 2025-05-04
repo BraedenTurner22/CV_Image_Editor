@@ -1,10 +1,65 @@
-<form (ngSubmit)="onSubmit()">
-  <label>Email:</label>
-  <input type="email" [(ngModel)]="email" name="email" required />
+<div class="main-container">
+  <h2 class="title">Log in</h2>
+  <hr class="line" />
 
-  <label>Password:</label>
-  <input type="password" [(ngModel)]="password" name="password" required />
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        placeholder="Enter your email"
+        formControlName="email"
+        [disabled]="loading"
+      />
+      <div
+        *ngIf="
+          loginForm.controls['email'].invalid &&
+          (loginForm.controls['email'].dirty ||
+            loginForm.controls['email'].touched)
+        "
+        class="error-message"
+      >
+        Email is required and must be valid.
+      </div>
+    </div>
 
-  <button type="submit">Log In</button>
-  <div *ngIf="errorMsg">{{ errorMsg }}</div>
-</form>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        name="password"
+        placeholder="Enter your password"
+        formControlName="password"
+        [disabled]="loading"
+      />
+      <div
+        *ngIf="
+          loginForm.controls['password'].invalid &&
+          (loginForm.controls['password'].dirty ||
+            loginForm.controls['password'].touched)
+        "
+        class="error-message"
+      >
+        Password must be at least 8 characters.
+      </div>
+    </div>
+
+    <button
+      class="button"
+      type="submit"
+      [disabled]="loginForm.invalid || loading"
+    >
+      <span *ngIf="!loading">Log In</span>
+      <span *ngIf="loading">Loading...</span>
+    </button>
+    <div *ngIf="authError" class="error-message">{{ authError }}</div>
+  </form>
+
+  <p class="toggle-link">
+    Don’t have an account yet?
+    <a routerLink="/signup">Create account</a>
+  </p>
+</div>

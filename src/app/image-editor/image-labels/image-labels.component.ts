@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ImageLabelGeneratorService } from "../app/services/image-label-generator.service";
+import { ImageLabelGeneratorService } from "../services/image-label-generator.service";
 
 @Component({
   selector: "app-image-labels",

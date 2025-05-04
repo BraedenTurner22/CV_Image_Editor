@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ImageLabelGeneratorService } from "../app/services/image-label-generator.service";
-import { FormToCropperLabelsService } from "../app/services/form-to-cropper-labels.service";
+import { ImageLabelGeneratorService } from "../services/image-label-generator.service";
+import { FormToCropperLabelsService } from "../services/form-to-cropper-labels.service";
 
 @Component({
   selector: "app-image-cropper",

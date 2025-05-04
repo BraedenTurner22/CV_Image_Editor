@@ -1,0 +1,22 @@
+<nav class="app-header">
+  <div class="header-container">
+    <div class="title">Computer Vision Streamliner</div>
+
+    <div class="nav-buttons">
+      <ng-container *ngIf="user$ | async as user; else loggedOut">
+        <button
+          class="nav-link-signup"
+          (click)="headerSignOut()"
+          [disabled]="loading"
+        >
+          Sign Out
+        </button>
+      </ng-container>
+
+      <ng-template #loggedOut>
+        <a routerLink="/login" class="nav-link-login">Log In</a>
+        <a routerLink="/signup" class="nav-link-signup">Sign Up</a>
+      </ng-template>
+    </div>
+  </div>
+</nav>

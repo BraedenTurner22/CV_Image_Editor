@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -6,16 +6,19 @@ import { AuthService } from '../authentication/services/auth.service';
 
 @Component({
   standalone: true,
-  selector: 'app-login',
+  selector: 'app-signup',
   imports: [ReactiveFormsModule, CommonModule, RouterModule],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  templateUrl: './signup.component.html',
+  styleUrl: './signup.component.css',
 })
-export class LoginComponent {
+export class SignupComponent {
 
-  loginForm = this.formBuilder.group({
+  signupForm = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email, Validators.minLength(5)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', [Validators.required]],
+  }, {
+    validators: this.passwordsMatchValidator
   });
 
   loading = false;
@@ -23,22 +26,30 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private formBuilder: FormBuilder, private router: Router) {}
 
-  async onSubmit(): Promise<void> {
-    if (this.loginForm.valid) {
-      this.loading = true;
+  private passwordsMatchValidator(group: any) {
+    const pw = group.get('password')?.value;
+    const cpw = group.get('confirmPassword')?.value;
+    return pw === cpw ? null : { passwordsMismatch: true };
+  }
 
+  async onSubmit(): Promise<void> {
+    if (this.signupForm.valid) {
+      this.loading = true;
       delete this.authError;
 
-      const { email, password } = this.loginForm.value;
-      this.authService.signIn(email!, password!)
+      const { email, password } = this.signupForm.value;
+
+      this.authService.registerUser(email!, password!)
         .then(() => {
-          this.router.navigate(['/']);
+          this.router.navigate(['/dashboard']);
           this.loading = false;
         })
         .catch(err => {
-          this.authError = err;
-        })
-
+          this.authError = err.message ?? 'An unexpected error occurred.';
+          this.loading = false;
+        });
     }
   }
 }
+
+
