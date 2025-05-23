@@ -11,7 +11,7 @@ import { AuthService } from '../authentication/services/auth.service';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
-  user$ = this.authService.$user;
+  user$ = this.authService.user$;
   loading = false;
 
   constructor(private authService: AuthService, private router: Router) {}

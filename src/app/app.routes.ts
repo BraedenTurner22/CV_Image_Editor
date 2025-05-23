@@ -1,6 +1,8 @@
 // src/app/app-routing.module.ts
 import { Routes } from '@angular/router';
-import { AuthGuard } from './authentication/guards/auth-guard.guard';
+import { AuthAndProfileGuard } from './authentication/guards/auth_routing.guard';
+import { PublicGuard } from './authentication/guards/public.guard';
+
 
 export const routes: Routes = [
   // 1) Home: landing page
@@ -8,7 +10,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./landing-page/landing-page.component').then(m => m.LandingPageComponent),
-    canActivate: [AuthGuard],
+    canActivate: [PublicGuard],
   },
 
   // 2) Public auth routes
@@ -16,11 +18,13 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./login/login.component').then(m => m.LoginComponent),
+    canActivate: [PublicGuard],
   },
   {
     path: 'signup',
     loadComponent: () =>
       import('./signup/signup.component').then(m => m.SignupComponent),
+    canActivate: [PublicGuard],
   },
 
   // 3) Protected dashboard
@@ -28,7 +32,8 @@ export const routes: Routes = [
     path: 'dashboard',
     loadComponent: () =>
       import('./image-dashboard/image-dashboard.component').then(m => m.ImageDashboardComponent),
-    canActivate: [AuthGuard],
+    canActivate: [AuthAndProfileGuard],
+    data: {requiresProfile: true },
   },
 
   // 4) Catch‐all back to “home”

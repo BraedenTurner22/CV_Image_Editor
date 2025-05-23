@@ -33,11 +33,16 @@ export class SignupComponent {
   }
 
   async onSubmit(): Promise<void> {
-    if (this.signupForm.valid) {
+    const { email, password } = this.signupForm.value;
+    
+    //checks if email already exists in a profile, returns null if not
+    if (this.authService.profileAlreadyExists(email) != null) {
+      this.authError = "An account with this email already exists. Please log in.";
+    }
+
+    else if (this.signupForm.valid) {
       this.loading = true;
       delete this.authError;
-
-      const { email, password } = this.signupForm.value;
 
       this.authService.registerUser(email!, password!)
         .then(() => {
@@ -45,11 +50,12 @@ export class SignupComponent {
           this.loading = false;
         })
         .catch(err => {
-          this.authError = err.message ?? 'An unexpected error occurred.';
+          this.authError = err?.message || 'An unexpected error occurred during login.';
+          console.error('Login error:', err); // Log the full error for debugging
+        })
+        .finally(() => { // Use .finally() to ensure loading state is always reset
           this.loading = false;
         });
-    }
   }
 }
-
-
+}

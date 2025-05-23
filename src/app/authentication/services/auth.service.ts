@@ -1,129 +1,200 @@
-import { Injectable } from '@angular/core';
-import { RealtimeChannel, User } from '@supabase/supabase-js';
-import { BehaviorSubject, first, Observable, skipWhile } from 'rxjs';
-import { SupabaseService } from './supabase-service.service';
+// auth.service.ts
+import { inject, Injectable, NgZone } from '@angular/core';
+import { AuthSession, createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Profile {
-  id: string;
+  id?: string;
   email: string;
+  username?: string;
+  avatar_url?: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private supabase: SupabaseClient;
+  private readonly ngZone = inject(NgZone);
 
-  // Supabase user state
-  private _$user = new BehaviorSubject<User | null | undefined>(undefined);
-  $user = this._$user.pipe(skipWhile(_ => typeof _ === 'undefined')) as Observable<User | null>;
-  private id?: string;
+  private _session = new BehaviorSubject<AuthSession | null>(null);
+  public readonly session$ = this._session.asObservable();
 
-  // Profile state
-  private _$profile = new BehaviorSubject<Profile | null | undefined>(undefined);
-  $profile = this._$profile.pipe(skipWhile(_ => typeof _ === 'undefined')) as Observable<Profile | null>;
-  private profile_subscription?: RealtimeChannel;
+  private _user = new BehaviorSubject<User | null>(null);
+  public readonly user$ = this._user.asObservable();
 
-  constructor(private supabase: SupabaseService) {
+  private _profile = new BehaviorSubject<Profile | null>(null);
+  public readonly profile$ = this._profile.asObservable();
 
-    // Initialize Supabase user
-    // Get initial user from the current session, if it exists
-    this.supabase.client.auth.getUser().then(({ data, error }) => {
-      this._$user.next(data && data.user && !error ? data.user : null);
+  constructor() {
+    // 1. Create Supabase client *outside* Angular's zone.
+    // This is crucial to prevent Supabase's internal real-time events from triggering
+    // constant change detection cycles in Angular.
+    this.supabase = this.ngZone.runOutsideAngular(() =>
+      createClient(
+        environment.supabase.url,
+        environment.supabase.key
+      )
+    );
 
-      // After the initial value is set, listen for auth state changes (sign in/sign out)
-      this.supabase.client.auth.onAuthStateChange((event, session) => {
-        this._$user.next(session?.user ?? null);
+    // 2. Initial session check: Bring the update into Angular's zone.
+    // We only care about the final state, so this should trigger one change detection.
+    this.supabase.auth.getSession().then(async ({ data: { session } }) => {
+      this.ngZone.run(async () => { // <--- Explicitly run in NgZone
+        this._session.next(session);
+        this._user.next(session?.user ?? null);
+        if (session?.user) {
+          const profile = await this.getProfile(session.user.id);
+          this._profile.next(profile);
+        } else {
+          this._profile.next(null);
+        }
+        console.log('AuthService: Initial session loaded in zone.');
       });
     });
 
-    // Initialize the user's profile
-    // The state of the user's profile is dependent on there being a user. If no user is set, there shouldn't be a profile.
-    this.$user.subscribe(user => {
-      if (user) {
-        // We only make changes if the user is different
-      if (user.id !== this.id) {
-        const id = user.id;
-        this.id = id;
+    // 3. Listen for auth state changes: Bring *only the state updates* into Angular's zone.
+    // The `onAuthStateChange` callback itself runs outside the zone, but `this.ngZone.run`
+    // will ensure Angular is aware of the state changes.
+    this.supabase.auth.onAuthStateChange((event, session) => {
+      this.ngZone.run(async () => { // <--- Explicitly run in NgZone
+        console.log('AuthService: onAuthStateChange event in zone:', event);
+        this._session.next(session);
+        this._user.next(session?.user ?? null);
 
-        // One-time API call to Supabase to get the user's profile
-        this.supabase.client.from('profiles').select('*').match({ id }).single().then(res => {
-          
-          //Update our profile Behavior Subject with the current value
-          this._$profile.next(res.data ?? null);
-
-          //Listen to any changes to our user's profile using Supabase Realtime
-          this.profile_subscription = this.supabase
-          .client
-          .channel('public:profiles')
-          .on('postgres_changes', {
-            event: '*',
-            schema: 'public',
-            table: 'profiles',
-            filter: 'id=eq.' + user.id}, (payload: any) => {
-
-              //Update our profile Behavior Subject with the newest value
-              this._$profile.next(payload.new);
-
-            })
-            .subscribe()
-
-          })
+        if (session?.user) {
+          const profile = await this.getProfile(session.user.id);
+          this._profile.next(profile);
+        } else {
+          this._profile.next(null);
         }
-      }
-      else {
-        // If there is no user, update the profile BehaviorSubject, delete the user's id (id), and unsubscribe from the Supabase Realtime
-        this._$profile.next(null);
-        delete this.id;
-        if (this.profile_subscription) {
-          this.supabase.client.removeChannel(this.profile_subscription).then(res => {
-            console.log('Removed profile channel subscription with status: ', res);
-          });
-        }
-      }
-    })
-
-    //Since our _$profile BehaviorSubject is dependent on the $user Observable,
-    // when we sign out our user, the _$profile is automatically updated.
-    // We can now use the $profile Observable everywhere in our app.
-
-    //End of constructor
-    }
-
-
-  //Registering account
-  registerUser(email: string, password: string) {
-    return new Promise<void>((resolve, reject) => {
-      this.supabase.client.auth.signUp({ email, password })
-        .then(({ data, error }) => {
-          if (error != null || data == null) return reject(new Error('User couldn\'t be registered'));
-          this.$profile.pipe(first()).subscribe(() => resolve());
-        })
-        .catch(error => reject(error));
+      });
     });
   }
 
-  //Sign In
-  signIn(email: string, password: string) {
-    return new Promise<void>((resolve, reject) => {
-  
-      // Set _$profile back to undefined. This will mean that $profile will wait to emit a value
-      this._$profile.next(undefined);
-      this.supabase.client.auth.signInWithPassword({ email, password })
-        .then(({ data, error }) => {
-          if (error || !data) return reject(new Error('Invalid email/password combination'));
-  
-          // Wait for $profile to be set again.
-          // We don't want to proceed until our API request for the user's profile has completed
-          this.$profile.pipe(first()).subscribe(() => {
-            resolve();
-          });
-        })
-    })
+  // Auth methods: These are typically called from Angular components (which are in the zone),
+  // so their promises resolving *should* trigger change detection if the component is awaiting.
+  // However, for maximum safety, you *could* wrap the `.then()` part of their internal promises
+  // in `ngZone.run()` if you continue to see issues, but often it's not strictly necessary here.
+
+  async registerUser(email: string, password: string) {
+    try {
+      // Supabase's `signUp` method is an async operation.
+      // The result of this promise needs to be handled.
+      const response = await this.supabase.auth.signUp({ email, password });
+      // The `onAuthStateChange` listener will eventually handle updating _session/_user
+      // via its `ngZone.run` block, so direct updates here are not strictly needed.
+      if (response.error) {
+        throw response.error;
+      }
+      return response.data;
+    } catch (error: any) {
+      console.error('Registration error:', error.message);
+      throw error;
+    }
   }
 
+  async signIn(email: string, password: string) {
+    try {
+      const response = await this.supabase.auth.signInWithPassword({ email, password });
+      if (response.error) {
+        throw response.error;
+      }
+      return response.data;
+    } catch (error: any) {
+      console.error('Sign-in error:', error.message);
+      throw error;
+    }
+  }
 
-  //Sign Out
-  signOut() {
-    return this.supabase.client.auth.signOut();
+  async signOut() {
+    try {
+      const { error } = await this.supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Sign-out error:', error.message);
+      throw error;
+    } finally {
+      console.log("User signed out");
+    }
+  }
+
+  // getCurrentUser, getSession, getProfile, updateProfile methods as before...
+  // For `updateProfile`, make sure the `_profile.next()` update is in the zone:
+  async updateProfile(profile: Profile): Promise<Profile | null> {
+    try {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .update(profile)
+        .eq('id', profile.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+      this.ngZone.run(() => { // <--- Explicitly run in NgZone for this update
+        this._profile.next(data as Profile);
+      });
+      return data as Profile;
+    } catch (error: any) {
+      console.error('Error updating profile:', error.message);
+      throw error;
+    }
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    const { data: { user }, error } = await this.supabase.auth.getUser();
+    if (error) {
+      console.error('Error fetching current user:', error.message);
+      return null;
+    }
+    return user;
+  }
+
+  async getSession(): Promise<AuthSession | null> {
+    const { data: { session }, error } = await this.supabase.auth.getSession();
+    if (error) {
+      console.error('Error fetching session:', error.message);
+      return null;
+    }
+    return session;
+  }
+
+  async getProfile(userId: string): Promise<Profile | null> {
+    try {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+      return data as Profile;
+    } catch (error: any) {
+      console.error('Error fetching profile:', error.message);
+      return null;
+    }
+  }
+
+  async profileAlreadyExists(email: string | null | undefined): Promise<boolean> {
+    //Checks if profile already exists based on user signing in with email
+    const { data, error } = await this.supabase
+      .from('profiles')
+      .select('id', { count: 'exact' })
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking email', error);
+      throw error;
+    }
+    // if data is non-null, there’s a matching row
+    return data !== null;
   }
 }

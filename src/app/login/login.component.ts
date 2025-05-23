@@ -33,12 +33,14 @@ export class LoginComponent {
       this.authService.signIn(email!, password!)
         .then(() => {
           this.router.navigate(['/']);
-          this.loading = false;
         })
         .catch(err => {
-          this.authError = err;
+          this.authError = err?.message || 'An unexpected error occurred during login.';
+          console.error('Login error:', err); // Log the full error for debugging
         })
-
+        .finally(() => { // Use .finally() to ensure loading state is always reset
+          this.loading = false;
+        });
     }
   }
 }
