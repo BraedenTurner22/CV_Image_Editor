@@ -1,1 +1,10 @@
-<p>image-dashboard works!</p>
+<div *ngIf="userAlreadyHasProject"></div>
+
+<div *ngIf="!userAlreadyHasProject">
+  <input
+    *ngIf="!imageUrl"
+    type="file"
+    (change)="fileChangeEvent($event)"
+    accept=".jpg,.jpeg,.png"
+  />
+</div>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -32,7 +32,7 @@ export class LoginComponent {
       const { email, password } = this.loginForm.value;
       this.authService.signIn(email!, password!)
         .then(() => {
-          this.router.navigate(['/']);
+          this.router.navigate(['/dashboard']);
         })
         .catch(err => {
           this.authError = err?.message || 'An unexpected error occurred during login.';

@@ -12,8 +12,9 @@
       type="text"
       [(ngModel)]="newObjectClass"
       placeholder="Enter class name"
+      tabindex="1"
     />
-    <button (click)="addObject()">+</button>
+    <button (click)="addObject()" tabindex="2">+</button>
   </div>
 
   <div *ngIf="errorMessage">
@@ -30,7 +31,8 @@
       type="text"
       [(ngModel)]="objectDict[key]"
       placeholder="Object class"
+      [tabindex]="key + 3"
     />
-    <button (click)="removeObject(key)">-</button>
+    <button (click)="removeObject(key)" [tabindex]="key + 4">-</button>
   </div>
 </div>

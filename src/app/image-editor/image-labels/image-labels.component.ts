@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ImageLabelGeneratorService } from "../services/image-label-generator.service";
 
 @Component({
   selector: "app-image-labels",
@@ -12,16 +11,9 @@ export class ImageLabelsComponent implements OnInit {
   fileContent: string | null = null;
   fileName: string | null = null;
 
-  constructor(private ImageLabelGeneratorService: ImageLabelGeneratorService) {}
+  constructor() {}
 
-  ngOnInit(): void {
-    this.ImageLabelGeneratorService.fileData$.subscribe((data) => {
-      this.fileContent = data;
-    });
-    this.ImageLabelGeneratorService.fileName$.subscribe((data) => {
-      this.fileName = data;
-    });
-  }
+  ngOnInit(): void {}
 
   downloadFile() {
     if (this.fileContent && this.fileName) {

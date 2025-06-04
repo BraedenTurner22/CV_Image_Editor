@@ -1,12 +1,5 @@
-<input
-  *ngIf="!imageUrl"
-  type="file"
-  (change)="fileChangeEvent($event)"
-  accept="image/*"
-/>
-
 <!-- Image container with mouse event listeners -->
-<div
+<!-- <div
   class="image-container"
   *ngIf="imageUrl"
   (mousedown)="startCrop($event)"
@@ -14,9 +7,10 @@
   (mouseup)="endCrop($event)"
   (mouseleave)="endCrop($event)"
 >
-  <img [src]="imageUrl" alt="Source Image" />
-  <!-- Visual crop overlay displayed while dragging -->
-  <div
+  <img [src]="imageUrl" alt="Source Image" /> -->
+
+<!-- Visual crop overlay displayed while dragging -->
+<!-- <div
     *ngIf="dragging"
     class="crop-overlay"
     [ngStyle]="{
@@ -26,7 +20,7 @@
       'height.px': cropRect.height
     }"
   ></div>
-</div>
+</div> -->
 
 <!-- Show the cropped image and a label generation trigger -->
 <div *ngIf="croppedImage">
