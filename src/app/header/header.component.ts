@@ -20,9 +20,11 @@ export class HeaderComponent {
     this.loading = true;
     try {
       await this.authService.signOut();
+      console.log('authService.signOut() resolved')
       this.router.navigate(['/login']);
     } finally {
       this.loading = false;
+      console.log('heaerSignOut() complete, loading = false')
     }
   }
 }

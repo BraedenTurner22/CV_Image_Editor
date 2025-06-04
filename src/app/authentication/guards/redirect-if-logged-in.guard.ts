@@ -1,4 +1,4 @@
-// src/app/guards/auth.guard.ts
+// src/app/guards/redirect-if-logged-in.guard.ts
 import { Injectable } from '@angular/core';
 import {
   CanActivate,
@@ -10,22 +10,21 @@ import {
 import { AuthService } from '../services/auth.service';
 
 @Injectable({ providedIn: 'root' })
-export class AuthGuard implements CanActivate {
+export class RedirectIfLoggedInGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
 
   async canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean | UrlTree> {
-
     const user = await this.auth.getCurrentUser();
 
-    // If no user, redirect to /login
-    if (!user) {
-      return this.router.parseUrl('/login');
+    // If the user is already logged in, redirect to /dashboard
+    if (user) {
+      return this.router.parseUrl('/dashboard');
     }
 
-    // Otherwise allow access to /dashboard (or whatever route was requested)
+    // Otherwise, allow navigation to /login or /signup
     return true;
   }
 }

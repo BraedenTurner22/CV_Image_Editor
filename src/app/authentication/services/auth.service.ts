@@ -101,6 +101,7 @@ export class AuthService {
       if (response.error) {
         throw response.error;
       }
+      console.log('User is successfully signed in.')
       return response.data;
     } catch (error: any) {
       console.error('Sign-in error:', error.message);
@@ -113,12 +114,12 @@ export class AuthService {
       const { error } = await this.supabase.auth.signOut();
       if (error) {
         throw error;
+      } else {
+      console.log('User is successfully signed out.')
       }
     } catch (error: any) {
       console.error('Sign-out error:', error.message);
       throw error;
-    } finally {
-      console.log("User signed out");
     }
   }
 
